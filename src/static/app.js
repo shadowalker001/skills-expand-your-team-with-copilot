@@ -472,16 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Helper function to encode HTML for data attributes
-  function encodeDataAttribute(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
-
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -564,19 +554,19 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="share-buttons">
         <span class="share-label">Share:</span>
-        <button class="share-btn share-twitter tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share on Twitter">
+        <button class="share-btn share-twitter tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share on Twitter">
           <span class="share-icon">🐦</span>
           <span class="tooltip-text">Share on Twitter</span>
         </button>
-        <button class="share-btn share-facebook tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share on Facebook">
+        <button class="share-btn share-facebook tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share on Facebook">
           <span class="share-icon">📘</span>
           <span class="tooltip-text">Share on Facebook</span>
         </button>
-        <button class="share-btn share-email tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share via Email">
+        <button class="share-btn share-email tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share via Email">
           <span class="share-icon">✉️</span>
           <span class="tooltip-text">Share via Email</span>
         </button>
-        <button class="share-btn share-copy tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Copy link">
+        <button class="share-btn share-copy tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Copy link">
           <span class="share-icon">🔗</span>
           <span class="tooltip-text">Copy link to clipboard</span>
         </button>
@@ -902,29 +892,21 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Social sharing functions
-  function sanitizeText(text) {
-    // Remove any potential script tags or malicious content
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
   function generateShareUrl() {
     const url = window.location.origin + window.location.pathname;
     return url;
   }
 
   function generateShareText(activityName, description, schedule) {
-    return `Check out this activity at Mergington High School: ${sanitizeText(activityName)}\n\n${sanitizeText(description)}\n\nSchedule: ${sanitizeText(schedule)}`;
+    return `Check out this activity at Mergington High School: ${activityName}\n\n${description}\n\nSchedule: ${schedule}`;
   }
 
   function handleTwitterShare(event) {
     const button = event.currentTarget;
     const activityName = button.dataset.activity;
     const description = button.dataset.description;
-    const schedule = button.dataset.schedule;
 
-    const text = `Check out ${sanitizeText(activityName)} at Mergington High School! ${sanitizeText(description)}`;
+    const text = `Check out ${activityName} at Mergington High School! ${description}`;
     const url = generateShareUrl();
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
@@ -934,11 +916,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleFacebookShare(event) {
-    const button = event.currentTarget;
-    const activityName = button.dataset.activity;
-    const description = button.dataset.description;
-    const schedule = button.dataset.schedule;
-
     const url = generateShareUrl();
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       url
@@ -953,7 +930,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const subject = `Check out ${sanitizeText(activityName)} at Mergington High School`;
+    const subject = `Check out ${activityName} at Mergington High School`;
     const body = generateShareText(activityName, description, schedule);
     const url = generateShareUrl();
 
