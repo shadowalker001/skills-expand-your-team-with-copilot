@@ -909,7 +909,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return div.innerHTML;
   }
 
-  function generateShareUrl(activityName, description, schedule) {
+  function generateShareUrl() {
     const url = window.location.origin + window.location.pathname;
     return url;
   }
@@ -925,7 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const schedule = button.dataset.schedule;
 
     const text = `Check out ${sanitizeText(activityName)} at Mergington High School! ${sanitizeText(description)}`;
-    const url = generateShareUrl(activityName, description, schedule);
+    const url = generateShareUrl();
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
     )}&url=${encodeURIComponent(url)}`;
@@ -939,7 +939,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const url = generateShareUrl(activityName, description, schedule);
+    const url = generateShareUrl();
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       url
     )}`;
@@ -953,9 +953,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const subject = `Check out ${activityName} at Mergington High School`;
+    const subject = `Check out ${sanitizeText(activityName)} at Mergington High School`;
     const body = generateShareText(activityName, description, schedule);
-    const url = generateShareUrl(activityName, description, schedule);
+    const url = generateShareUrl();
 
     const mailtoUrl = `mailto:?subject=${encodeURIComponent(
       subject
@@ -970,7 +970,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const url = generateShareUrl(activityName, description, schedule);
+    const url = generateShareUrl();
     const shareText = generateShareText(activityName, description, schedule);
     const fullText = `${shareText}\n\n${url}`;
 
