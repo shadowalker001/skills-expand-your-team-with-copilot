@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
 
+  // School name constant
+  const SCHOOL_NAME = "Mergington High School";
+
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
@@ -472,6 +475,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Helper function to safely escape quotes in data attributes
+  function escapeDataAttribute(str) {
+    return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -554,19 +562,19 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="share-buttons">
         <span class="share-label">Share:</span>
-        <button class="share-btn share-twitter tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share on Twitter">
+        <button class="share-btn share-twitter tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share on Twitter">
           <span class="share-icon">🐦</span>
           <span class="tooltip-text">Share on Twitter</span>
         </button>
-        <button class="share-btn share-facebook tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share on Facebook">
+        <button class="share-btn share-facebook tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share on Facebook">
           <span class="share-icon">📘</span>
           <span class="tooltip-text">Share on Facebook</span>
         </button>
-        <button class="share-btn share-email tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Share via Email">
+        <button class="share-btn share-email tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share via Email">
           <span class="share-icon">✉️</span>
           <span class="tooltip-text">Share via Email</span>
         </button>
-        <button class="share-btn share-copy tooltip" data-activity="${name}" data-description="${details.description}" data-schedule="${formattedSchedule}" aria-label="Copy link">
+        <button class="share-btn share-copy tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Copy link">
           <span class="share-icon">🔗</span>
           <span class="tooltip-text">Copy link to clipboard</span>
         </button>
@@ -898,7 +906,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function generateShareText(activityName, description, schedule) {
-    return `Check out this activity at Mergington High School: ${activityName}\n\n${description}\n\nSchedule: ${schedule}`;
+    return `Check out this activity at ${SCHOOL_NAME}: ${activityName}\n\n${description}\n\nSchedule: ${schedule}`;
   }
 
   function handleTwitterShare(event) {
@@ -906,7 +914,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const activityName = button.dataset.activity;
     const description = button.dataset.description;
 
-    const text = `Check out ${activityName} at Mergington High School! ${description}`;
+    const text = `Check out ${activityName} at ${SCHOOL_NAME}! ${description}`;
     const url = generateShareUrl();
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
@@ -930,7 +938,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const subject = `Check out ${activityName} at Mergington High School`;
+    const subject = `Check out ${activityName} at ${SCHOOL_NAME}`;
     const body = generateShareText(activityName, description, schedule);
     const url = generateShareUrl();
 
@@ -971,15 +979,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const textArea = document.createElement("textarea");
     textArea.value = text;
     textArea.style.position = "fixed";
-    textArea.style.top = "0";
-    textArea.style.left = "0";
-    textArea.style.width = "2em";
-    textArea.style.height = "2em";
-    textArea.style.padding = "0";
-    textArea.style.border = "none";
-    textArea.style.outline = "none";
-    textArea.style.boxShadow = "none";
-    textArea.style.background = "transparent";
+    textArea.style.top = "-9999px";
+    textArea.style.left = "-9999px";
+    textArea.style.opacity = "0";
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
