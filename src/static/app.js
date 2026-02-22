@@ -34,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
 
+  // School name constant
+  const SCHOOL_NAME = "Mergington High School";
+
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
@@ -472,6 +475,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Helper function to safely escape quotes in data attributes
+  function escapeDataAttribute(str) {
+    return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -552,6 +560,25 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-twitter tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share on Twitter">
+          <span class="share-icon">🐦</span>
+          <span class="tooltip-text">Share on Twitter</span>
+        </button>
+        <button class="share-btn share-facebook tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share on Facebook">
+          <span class="share-icon">📘</span>
+          <span class="tooltip-text">Share on Facebook</span>
+        </button>
+        <button class="share-btn share-email tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Share via Email">
+          <span class="share-icon">✉️</span>
+          <span class="tooltip-text">Share via Email</span>
+        </button>
+        <button class="share-btn share-copy tooltip" data-activity="${escapeDataAttribute(name)}" data-description="${escapeDataAttribute(details.description)}" data-schedule="${escapeDataAttribute(formattedSchedule)}" aria-label="Copy link">
+          <span class="share-icon">🔗</span>
+          <span class="tooltip-text">Copy link to clipboard</span>
+        </button>
+      </div>
       <div class="activity-card-actions">
         ${
           currentUser
@@ -576,6 +603,17 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteButtons.forEach((button) => {
       button.addEventListener("click", handleUnregister);
     });
+
+    // Add click handlers for share buttons
+    const shareTwitterBtn = activityCard.querySelector(".share-twitter");
+    const shareFacebookBtn = activityCard.querySelector(".share-facebook");
+    const shareEmailBtn = activityCard.querySelector(".share-email");
+    const shareCopyBtn = activityCard.querySelector(".share-copy");
+
+    if (shareTwitterBtn) shareTwitterBtn.addEventListener("click", handleTwitterShare);
+    if (shareFacebookBtn) shareFacebookBtn.addEventListener("click", handleFacebookShare);
+    if (shareEmailBtn) shareEmailBtn.addEventListener("click", handleEmailShare);
+    if (shareCopyBtn) shareCopyBtn.addEventListener("click", handleCopyLink);
 
     // Add click handler for register button (only when authenticated)
     if (currentUser) {
@@ -860,6 +898,108 @@ document.addEventListener("DOMContentLoaded", () => {
     setDayFilter,
     setTimeRangeFilter,
   };
+
+  // Social sharing functions
+  function generateShareUrl() {
+    const url = window.location.origin + window.location.pathname;
+    return url;
+  }
+
+  function generateShareText(activityName, description, schedule) {
+    return `Check out this activity at ${SCHOOL_NAME}: ${activityName}\n\n${description}\n\nSchedule: ${schedule}`;
+  }
+
+  function handleTwitterShare(event) {
+    const button = event.currentTarget;
+    const activityName = button.dataset.activity;
+    const description = button.dataset.description;
+
+    const text = `Check out ${activityName} at ${SCHOOL_NAME}! ${description}`;
+    const url = generateShareUrl();
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text
+    )}&url=${encodeURIComponent(url)}`;
+
+    window.open(twitterUrl, "_blank", "width=550,height=420");
+  }
+
+  function handleFacebookShare(event) {
+    const url = generateShareUrl();
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      url
+    )}`;
+
+    window.open(facebookUrl, "_blank", "width=550,height=420");
+  }
+
+  function handleEmailShare(event) {
+    const button = event.currentTarget;
+    const activityName = button.dataset.activity;
+    const description = button.dataset.description;
+    const schedule = button.dataset.schedule;
+
+    const subject = `Check out ${activityName} at ${SCHOOL_NAME}`;
+    const body = generateShareText(activityName, description, schedule);
+    const url = generateShareUrl();
+
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body + "\n\n" + url)}`;
+
+    window.location.href = mailtoUrl;
+  }
+
+  function handleCopyLink(event) {
+    const button = event.currentTarget;
+    const activityName = button.dataset.activity;
+    const description = button.dataset.description;
+    const schedule = button.dataset.schedule;
+
+    const url = generateShareUrl();
+    const shareText = generateShareText(activityName, description, schedule);
+    const fullText = `${shareText}\n\n${url}`;
+
+    // Try to use the Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(fullText)
+        .then(() => {
+          showMessage("Link copied to clipboard!", "success");
+        })
+        .catch((err) => {
+          console.error("Failed to copy:", err);
+          fallbackCopyTextToClipboard(fullText);
+        });
+    } else {
+      fallbackCopyTextToClipboard(fullText);
+    }
+  }
+
+  function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.top = "-9999px";
+    textArea.style.left = "-9999px";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand("copy");
+      if (successful) {
+        showMessage("Link copied to clipboard!", "success");
+      } else {
+        showMessage("Failed to copy link", "error");
+      }
+    } catch (err) {
+      console.error("Fallback: Could not copy text: ", err);
+      showMessage("Failed to copy link", "error");
+    }
+
+    document.body.removeChild(textArea);
+  }
 
   // Initialize app
   checkAuthentication();
