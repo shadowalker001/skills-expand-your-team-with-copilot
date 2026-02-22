@@ -472,6 +472,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Helper function to encode HTML for data attributes
+  function encodeDataAttribute(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -554,19 +564,19 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="share-buttons">
         <span class="share-label">Share:</span>
-        <button class="share-btn share-twitter tooltip" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" aria-label="Share on Twitter">
+        <button class="share-btn share-twitter tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share on Twitter">
           <span class="share-icon">🐦</span>
           <span class="tooltip-text">Share on Twitter</span>
         </button>
-        <button class="share-btn share-facebook tooltip" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" aria-label="Share on Facebook">
+        <button class="share-btn share-facebook tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share on Facebook">
           <span class="share-icon">📘</span>
           <span class="tooltip-text">Share on Facebook</span>
         </button>
-        <button class="share-btn share-email tooltip" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" aria-label="Share via Email">
+        <button class="share-btn share-email tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Share via Email">
           <span class="share-icon">✉️</span>
           <span class="tooltip-text">Share via Email</span>
         </button>
-        <button class="share-btn share-copy tooltip" data-activity="${name}" data-description="${details.description.replace(/"/g, '&quot;')}" data-schedule="${formattedSchedule.replace(/"/g, '&quot;')}" aria-label="Copy link">
+        <button class="share-btn share-copy tooltip" data-activity="${encodeDataAttribute(name)}" data-description="${encodeDataAttribute(details.description)}" data-schedule="${encodeDataAttribute(formattedSchedule)}" aria-label="Copy link">
           <span class="share-icon">🔗</span>
           <span class="tooltip-text">Copy link to clipboard</span>
         </button>
@@ -602,10 +612,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const shareEmailBtn = activityCard.querySelector(".share-email");
     const shareCopyBtn = activityCard.querySelector(".share-copy");
 
-    shareTwitterBtn.addEventListener("click", handleTwitterShare);
-    shareFacebookBtn.addEventListener("click", handleFacebookShare);
-    shareEmailBtn.addEventListener("click", handleEmailShare);
-    shareCopyBtn.addEventListener("click", handleCopyLink);
+    if (shareTwitterBtn) shareTwitterBtn.addEventListener("click", handleTwitterShare);
+    if (shareFacebookBtn) shareFacebookBtn.addEventListener("click", handleFacebookShare);
+    if (shareEmailBtn) shareEmailBtn.addEventListener("click", handleEmailShare);
+    if (shareCopyBtn) shareCopyBtn.addEventListener("click", handleCopyLink);
 
     // Add click handler for register button (only when authenticated)
     if (currentUser) {
@@ -892,13 +902,20 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Social sharing functions
+  function sanitizeText(text) {
+    // Remove any potential script tags or malicious content
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
   function generateShareUrl(activityName, description, schedule) {
     const url = window.location.origin + window.location.pathname;
     return url;
   }
 
   function generateShareText(activityName, description, schedule) {
-    return `Check out this activity at Mergington High School: ${activityName}\n\n${description}\n\nSchedule: ${schedule}`;
+    return `Check out this activity at Mergington High School: ${sanitizeText(activityName)}\n\n${sanitizeText(description)}\n\nSchedule: ${sanitizeText(schedule)}`;
   }
 
   function handleTwitterShare(event) {
@@ -907,7 +924,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = button.dataset.description;
     const schedule = button.dataset.schedule;
 
-    const text = `Check out ${activityName} at Mergington High School! ${description}`;
+    const text = `Check out ${sanitizeText(activityName)} at Mergington High School! ${sanitizeText(description)}`;
     const url = generateShareUrl(activityName, description, schedule);
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
       text
